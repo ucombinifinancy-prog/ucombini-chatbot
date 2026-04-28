@@ -1,0 +1,270 @@
+/**
+ * UCOMBINI Facebook Chatbot - Qualifying Questions Flow
+ * Date: 2026-04-28
+ */
+
+// Qualifying state tracker
+const userState = new Map();
+
+// Product categories that need qualifying
+const QUALIFYING_CATEGORIES = {
+  'малгай': { name: 'Малгай', ask: ['who', 'age', 'budget'] },
+  'гутал': { name: 'Гутал', ask: ['who', 'type', 'budget'] },
+  'хувцас': { name: 'Хувцас', ask: ['who', 'type', 'size', 'budget'] },
+  'аяга': { name: 'Аяга', ask: ['type', 'budget', 'quantity'] },
+  'таваг': { name: 'Таваг', ask: ['type', 'budget', 'size'] },
+  'дэвсгэр': { name: 'Дэвсгэр', ask: ['type', 'size', 'budget'] },
+  'өмд': { name: 'Өмд', ask: ['who', 'size', 'budget'] },
+  'цамц': { name: 'Цамц', ask: ['who', 'size', 'budget'] },
+};
+
+// Quick reply buttons
+const QUICK_REPLIES = {
+  who: [
+    { content_type: 'text', title: '👔 Том хүн', payload: 'WHO_ADULT' },
+    { content_type: 'text', title: '👶 Хүүхэд', payload: 'WHO_CHILD' },
+  ],
+  adult_type: [
+    { content_type: 'text', title: '👨 Эрэгтэй', payload: 'GENDER_MALE' },
+    { content_type: 'text', title: '👩 Эмэгтэй', payload: 'GENDER_FEMALE' },
+  ],
+  child_age: [
+    { content_type: 'text', title: '1-2 нас', payload: 'AGE_1_2' },
+    { content_type: 'text', title: '3-4 нас', payload: 'AGE_3_4' },
+    { content_type: 'text', title: '5-6 нас', payload: 'AGE_5_6' },
+    { content_type: 'text', title: '7+ нас', payload: 'AGE_7_PLUS' },
+  ],
+  budget: [
+    { content_type: 'text', title: '5-15K', payload: 'BUDGET_LOW' },
+    { content_type: 'text', title: '15-30K', payload: 'BUDGET_MID' },
+    { content_type: 'text', title: '30-50K', payload: 'BUDGET_HIGH' },
+    { content_type: 'text', title: '50K+', payload: 'BUDGET_PREMIUM' },
+  ],
+  shoe_type: [
+    { content_type: 'text', title: '🏃 Спорт', payload: 'TYPE_SPORT' },
+    { content_type: 'text', title: '🏢 Оффис', payload: 'TYPE_OFFICE' },
+    { content_type: 'text', title: '🏠 Гэрийн', payload: 'TYPE_HOME' },
+    { content_type: 'text', title: '🎁 Бэлэг', payload: 'TYPE_GIFT' },
+  ],
+  clothing_type: [
+    { content_type: 'text', title: '🏢 Оффис', payload: 'TYPE_OFFICE' },
+    { content_type: 'text', title: '🏠 Гэрийн', payload: 'TYPE_HOME' },
+    { content_type: 'text', title: '🏃 Спорт', payload: 'TYPE_SPORT' },
+    { content_type: 'text', title: '🎁 Бэлэг', payload: 'TYPE_GIFT' },
+  ],
+  size: [
+    { content_type: 'text', title: 'S', payload: 'SIZE_S' },
+    { content_type: 'text', title: 'M', payload: 'SIZE_M' },
+    { content_type: 'text', title: 'L', payload: 'SIZE_L' },
+    { content_type: 'text', title: 'XL', payload: 'SIZE_XL' },
+    { content_type: 'text', title: 'XXL', payload: 'SIZE_XXL' },
+  ],
+  contact: [
+    { content_type: 'phone_number' },
+  ],
+};
+
+// Welcome message
+function getWelcomeMessage() {
+  return {
+    text: `Сайн байна уу! 🌸 UCOMBINI-д тавтай морил.
+
+Ямар бараа сонирхож байна? Бага зэрэг тодруулаад өгвөл хамгийн тохиромжтойг санал болгоно! ✨
+
+📞 Лавлах: 80554678`,
+    quick_replies: [
+      { content_type: 'text', title: '🧢 Малгай', payload: 'CAT_CAP' },
+      { content_type: 'text', title: '👟 Гутал', payload: 'CAT_SHOE' },
+      { content_type: 'text', title: '👔 Хувцас', payload: 'CAT_CLOTHES' },
+      { content_type: 'text', title: '🍽️ Аяга таваг', payload: 'CAT_DISHES' },
+    ]
+  };
+}
+
+// Check if message needs qualifying
+function needsQualifying(message) {
+  const lowerMsg = message.toLowerCase();
+  for (const [keyword, config] of Object.entries(QUALIFYING_CATEGORIES)) {
+    if (lowerMsg.includes(keyword)) {
+      return { needsQualify: true, category: config };
+    }
+  }
+  return { needsQualify: false };
+}
+
+// Generate qualifying question based on state
+function getQualifyingQuestion(userId, category) {
+  const state = userState.get(userId) || { step: 0, answers: {} };
+  const questions = category.ask;
+  
+  if (state.step >= questions.length) {
+    return null; // All questions answered
+  }
+  
+  const currentQuestion = questions[state.step];
+  
+  switch (currentQuestion) {
+    case 'who':
+      return {
+        text: `${category.name} хайж байна уу? 👍\n\nХэн хэрэглэх вэ?`,
+        quick_replies: QUICK_REPLIES.who
+      };
+    case 'age':
+      if (state.answers.who === 'CHILD') {
+        return {
+          text: `Хэдэн насных вэ? 👶`,
+          quick_replies: QUICK_REPLIES.child_age
+        };
+      }
+      return {
+        text: `Таны бюджет хэдэн төгрөг вэ? 💰`,
+        quick_replies: QUICK_REPLIES.budget
+      };
+    case 'type':
+      if (category.name === 'Гутал') {
+        return {
+          text: `Ямар зориулалттай вэ? 👟`,
+          quick_replies: QUICK_REPLIES.shoe_type
+        };
+      }
+      return {
+        text: `Ямар зориулалттай вэ? 👔`,
+        quick_replies: QUICK_REPLIES.clothing_type
+      };
+    case 'budget':
+      return {
+        text: `Таны бюджет хэдэн төгрөг вэ? 💰`,
+        quick_replies: QUICK_REPLIES.budget
+      };
+    case 'size':
+      return {
+        text: `Ямар размер вэ? 📏`,
+        quick_replies: QUICK_REPLIES.size
+      };
+    default:
+      return { text: 'Бусад мэдээлэл оруулах уу?' };
+  }
+}
+
+// Process user answer and advance state
+function processAnswer(userId, payload) {
+  const state = userState.get(userId) || { step: 0, answers: {} };
+  
+  // Map payload to answer
+  if (payload.startsWith('WHO_')) {
+    state.answers.who = payload === 'WHO_CHILD' ? 'CHILD' : 'ADULT';
+  } else if (payload.startsWith('GENDER_')) {
+    state.answers.gender = payload === 'GENDER_MALE' ? 'MALE' : 'FEMALE';
+  } else if (payload.startsWith('AGE_')) {
+    state.answers.age = payload.replace('AGE_', '');
+  } else if (payload.startsWith('BUDGET_')) {
+    state.answers.budget = payload.replace('BUDGET_', '');
+  } else if (payload.startsWith('TYPE_')) {
+    state.answers.type = payload.replace('TYPE_', '');
+  } else if (payload.startsWith('SIZE_')) {
+    state.answers.size = payload.replace('SIZE_', '');
+  }
+  
+  state.step += 1;
+  userState.set(userId, state);
+  
+  return state;
+}
+
+// Generate product recommendation based on answers
+function getProductRecommendation(category, answers) {
+  // This would connect to product database
+  // For now, return template response
+  
+  let budgetText = '';
+  switch (answers.budget) {
+    case 'LOW': budgetText = '5,000-15,000₮'; break;
+    case 'MID': budgetText = '15,000-30,000₮'; break;
+    case 'HIGH': budgetText = '30,000-50,000₮'; break;
+    case 'PREMIUM': budgetText = '50,000₮+'; break;
+  }
+  
+  return {
+    text: `✅ Таны хэрэгцээнд тохирсон ${category.name}:
+
+🎯 Төрөл: ${answers.who === 'CHILD' ? 'Хүүхдийн' : 'Том хүний'}
+💰 Бюджет: ${budgetText}
+${answers.size ? `📏 Размер: ${answers.size}` : ''}
+${answers.type ? `📌 Зориулалт: ${answers.type}` : ''}
+
+Идэвхтэй бараа харуулах уу? 👇`,
+    quick_replies: [
+      { content_type: 'text', title: '📦 Бараа харах', payload: 'SHOW_PRODUCTS' },
+      { content_type: 'text', title: '☎️ Утасдах', payload: 'CALL_US' },
+      { content_type: 'text', title: '🔄 Өөрөө хайх', payload: 'NEW_SEARCH' },
+    ]
+  };
+}
+
+// Handle bonus card inquiry
+function getBonusCardResponse() {
+  return {
+    text: `🎁 **Бонус карт авах заавар:**
+
+**📋 Бэлтгэх:**
+• Иргэний үнэмлэх
+• Утасны дугаар
+
+**📍 Хаана:** UCOMBINI дэлгүүр (Дари-Эх)
+**🕐 Хэзээ:** 10:00-22:00 (өдөр бүр)
+
+**💎 Давуу тал:**
+✅ Худалдан авалт бүрт 3-5% бонус оноо
+✅ Төрсөн өдрийн хямдрал
+✅ Карт эзэмшигчдийн онцгой урамшуулал
+
+📞 Лавлах: 80554678`,
+    quick_replies: [
+      { content_type: 'text', title: '✅ Очно', payload: 'WILL_COME' },
+      { content_type: 'text', title: '❓ Асуулт байна', payload: 'QUESTION' },
+    ]
+  };
+}
+
+// Main message handler
+function handleMessage(userId, messageText, payload = null) {
+  // Check for bonus card keywords
+  const bonusKeywords = ['бонус', 'карт', 'картаа', 'onoо', 'оноо'];
+  if (bonusKeywords.some(kw => messageText.toLowerCase().includes(kw))) {
+    return getBonusCardResponse();
+  }
+  
+  // Check if user is in qualifying flow
+  if (userState.has(userId)) {
+    const state = processAnswer(userId, payload || messageText);
+    const category = state.answers.category;
+    
+    const nextQuestion = getQualifyingQuestion(userId, category);
+    if (nextQuestion) {
+      return nextQuestion;
+    } else {
+      // All questions answered, show recommendation
+      userState.delete(userId);
+      return getProductRecommendation(category, state.answers);
+    }
+  }
+  
+  // Check if new inquiry needs qualifying
+  const qualifyCheck = needsQualifying(messageText);
+  if (qualifyCheck.needsQualify) {
+    userState.set(userId, { step: 0, answers: { category: qualifyCheck.category } });
+    return getQualifyingQuestion(userId, qualifyCheck.category);
+  }
+  
+  // Default welcome
+  return getWelcomeMessage();
+}
+
+module.exports = {
+  handleMessage,
+  getWelcomeMessage,
+  getBonusCardResponse,
+  needsQualifying,
+  processAnswer,
+  getProductRecommendation
+};

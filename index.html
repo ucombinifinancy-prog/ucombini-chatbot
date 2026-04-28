@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCOMBINI FB Chatbot Setup</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .flow-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .flow-box.user { border-left-color: #28a745; }
+        .flow-box.bot { border-left-color: #007bff; }
+        .flow-box .label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .flow-box .text {
+            font-size: 16px;
+            color: #333;
+        }
+        .quick-replies {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .quick-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #495057;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .token-box {
+            background: #d4edda;
+            border: 2px dashed #28a745;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        ul { margin-left: 20px; margin-top: 10px; }
+        li { margin: 8px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌸 UCOMBINI FB Chatbot</h1>
+        
+        <div class="card">
+            <h2><span class="step-number">📱</span> Qualifying Questions Flow Demo</h2>
+            <p>Бараа санал болгохоос ӨМНӨ тодруулах асуулт асуух систем:</p>
+            
+            <div class="flow-diagram">
+                <div class="flow-box user">
+                    <div class="label">👤 Хэрэглэгч</div>
+                    <div class="text">"Малгай үзье"</div>
+                </div>
+                <div class="flow-box bot">
+                    <div class="label">🤖 Бот</div>
+                    <div class="text">Та яг ямар малгай хайж байна? 🧢</div>
+                    <div class="quick-replies">
+                        <span class="quick-btn">👔 Том хүнийх</span>
+                        <span class="quick-btn">👶 Хүүхдийнх</span>
+                    </div>
+                </div>
+                <div class="flow-box user">
+                    <div class="label">👤 Хэрэглэгч</div>
+                    <div class="text">👶 Хүүхдийнх</div>
+                </div>
+                <div class="flow-box bot">
+                    <div class="label">🤖 Бот</div>
+                    <div class="text">Хэдэн насных вэ? 👶</div>
+                    <div class="quick-replies">
+                        <span class="quick-btn">1-2 нас</span>
+                        <span class="quick-btn">3-4 нас</span>
+                        <span class="quick-btn">5-6 нас</span>
+                    </div>
+                </div>
+                <div class="flow-box user">
+                    <div class="label">👤 Хэрэглэгч</div>
+                    <div class="text">5-6 нас</div>
+                </div>
+                <div class="flow-box bot">
+                    <div class="label">🤖 Бот</div>
+                    <div class="text">💰 Бюджет хэдэн төгрөг вэ?</div>
+                    <div class="quick-replies">
+                        <span class="quick-btn">5-15K</span>
+                        <span class="quick-btn">15-30K</span>
+                        <span class="quick-btn">30K+</span>
+                    </div>
+                </div>
+                <div class="flow-box bot" style="background: #d4edda; border-color: #28a745;">
+                    <div class="label">✅ Санал болгож байна...</div>
+                    <div class="text">
+                        <strong>Хүүхдийн зуны малгай</strong><br>
+                        👤 5-6 нас | 💰 15,000₮ | 🎨 3 өнгө<br><br>
+                        ✅ Өдөр тутмын хэрэглээнд тохиромжтой<br>
+                        ✅ Уян хатан материал<br><br>
+                        👉 Захиалах: 📞 80554678
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="step-number">1</span> Facebook Developer бүртгэл</h2>
+            <ol>
+                <li><a href="https://developers.facebook.com/apps/create/" class="btn">🔗 Facebook Developers орох</a></li>
+                <li>"Create App" дээр дарна</li>
+                <li><strong>App Type:</strong> Business сонго</li>
+                <li><strong>App Name:</strong> UCOMBINI Chatbot</li>
+                <li>Email: ucombini@gmail.com оруулна</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2><span class="step-number">2</span> Messenger Product нэмэх</h2>
+            <ol>
+                <li>Dashboard → "Add Product"</li>
+                <li><strong>Messenger</strong> сонго</li>
+                <li>"Add or Remove Pages" → UCOMBINI page сонго</li>
+                <li>"Generate Token" дээр дар</li>
+            </ol>
+            
+            <div class="token-box">
+                <strong>📝 Page Access Token хуулж аваад надад явуул:</strong><br><br>
+                <code>EAAxxxxxxxxxxxxxxxx...</code>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="step-number">3</span> Webhook тохируулах</h2>
+            <div class="highlight">
+                <strong>Verify Token:</strong> <code>ucombini_verify_2026_secure</code>
+            </div>
+            
+            <p><strong>Callback URL:</strong> (Deploy хойш өгнө)</p>
+            
+            <p><strong>Events сонго:</strong></p>
+            <ul>
+                <li>☑️ messages</li>
+                <li>☑️ messaging_postbacks</li>
+                <li>☑️ messaging_optins</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2><span class="step-number">4</span> Server Deploy</h2>
+            <p>3 сонголт байна:</p>
+            
+            <h3>🅰️ here.now (Хамгийн хялбар)</h3>
+            <pre># Terminal
+openclaw here-now publish ./fb-chatbot-setup/</pre>
+            
+            <h3>🅱️ Render.com (Үнэгүй)</h3>
+            <a href="https://render.com" class="btn">🔗 Render.com очих</a>
+            
+            <h3>🅲️ Railway (Үнэгүй)</h3>
+            <a href="https://railway.app" class="btn">🔗 Railway очих</a>
+        </div>
+
+        <div class="card">
+            <h2><span class="step-number">📦</span> Бэлэн файлууд</h2>
+            <ul>
+                <li><code>chatbot-flow.js</code> - Qualifying questions logic</li>
+                <li><code>webhook-server.js</code> - Express server</li>
+                <li><code>package.json</code> - Dependencies</li>
+                <li><code>GUIDE.md</code> - Бүрэн заавар</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; color: white; margin-top: 30px;">
+            <p>© 2026 UCOMBINI | Megumi AI</p>
+        </div>
+    </div>
+</body>
+</html>
