@@ -64,19 +64,21 @@ const QUICK_REPLIES = {
   ],
 };
 
-// Welcome message
+// Welcome message - Warm, human-like tone
 function getWelcomeMessage() {
   return {
-    text: `Сайн байна уу! 🌸 UCOMBINI-д тавтай морил.
+    text: `Сайн байна уу! 👋 UCOMBINI-д тавтай морил.
 
-Ямар бараа сонирхож байна? Бага зэрэг тодруулаад өгвөл хамгийн тохиромжтойг санал болгоно! ✨
+Бидний дэлгүүрээс ямар бараа хайж байна? 
 
-📞 Лавлах: 80554678`,
+Бага зэрэг тодруулаад өгвөл, таны хэрэгцээнд яг тохирох барааг олж өгье! ✨
+
+Асуух зүйл байвал чөлөөтэй хэлээрэй.`,
     quick_replies: [
-      { content_type: 'text', title: '🧢 Малгай', payload: 'CAT_CAP' },
-      { content_type: 'text', title: '👟 Гутал', payload: 'CAT_SHOE' },
-      { content_type: 'text', title: '👔 Хувцас', payload: 'CAT_CLOTHES' },
-      { content_type: 'text', title: '🍽️ Аяга таваг', payload: 'CAT_DISHES' },
+      { content_type: 'text', title: '🧢 Малгай хайж байна', payload: 'CAT_CAP' },
+      { content_type: 'text', title: '👟 Гутал хайж байна', payload: 'CAT_SHOE' },
+      { content_type: 'text', title: '👔 Хувцас хайж байна', payload: 'CAT_CLOTHES' },
+      { content_type: 'text', title: '🎁 Бэлэг сонирхож байна', payload: 'CAT_GIFT' },
     ]
   };
 }
@@ -92,7 +94,7 @@ function needsQualifying(message) {
   return { needsQualify: false };
 }
 
-// Generate qualifying question based on state
+// Generate qualifying question based on state - Natural, warm tone
 function getQualifyingQuestion(userId, category) {
   const state = userState.get(userId) || { step: 0, answers: {} };
   const questions = category.ask;
@@ -106,43 +108,43 @@ function getQualifyingQuestion(userId, category) {
   switch (currentQuestion) {
     case 'who':
       return {
-        text: `${category.name} хайж байна уу? 👍\n\nХэн хэрэглэх вэ?`,
+        text: `Ойлголоо, ${category.name.toLowerCase()} хайж байна шүү дээ 🙂\n\nХэнд гэж авах гэж байна? 🤔`,
         quick_replies: QUICK_REPLIES.who
       };
     case 'age':
       if (state.answers.who === 'CHILD') {
         return {
-          text: `Хэдэн насных вэ? 👶`,
+          text: `Хүүхдийнх юм байна. Хэдэн насны хүүхэд вэ? 👶👦`,
           quick_replies: QUICK_REPLIES.child_age
         };
       }
       return {
-        text: `Таны бюджет хэдэн төгрөг вэ? 💰`,
+        text: `Аан, тэгвэл хэдэн төгрөгийн хүрээнд хайж байна? 💸`,
         quick_replies: QUICK_REPLIES.budget
       };
     case 'type':
       if (category.name === 'Гутал') {
         return {
-          text: `Ямар зориулалттай вэ? 👟`,
+          text: `За тэгээд ямар зориулалттай гутал хэрэгтэй вэ? 👟`,
           quick_replies: QUICK_REPLIES.shoe_type
         };
       }
       return {
-        text: `Ямар зориулалттай вэ? 👔`,
+        text: `Хаана өмсөх гэж байгаа вэ? 🧐`,
         quick_replies: QUICK_REPLIES.clothing_type
       };
     case 'budget':
       return {
-        text: `Таны бюджет хэдэн төгрөг вэ? 💰`,
+        text: `Хэдэн төгрөгөөр төлөвлөсөн бэ? 💰`,
         quick_replies: QUICK_REPLIES.budget
       };
     case 'size':
       return {
-        text: `Ямар размер вэ? 📏`,
+        text: `Размер нь хэд вэ? 📏`,
         quick_replies: QUICK_REPLIES.size
       };
     default:
-      return { text: 'Бусад мэдээлэл оруулах уу?' };
+      return { text: 'Өөр тодруулах зүйл байна уу? 😊' };
   }
 }
 
@@ -171,32 +173,48 @@ function processAnswer(userId, payload) {
   return state;
 }
 
-// Generate product recommendation based on answers
+// Generate product recommendation based on answers - Sales-focused
 function getProductRecommendation(category, answers) {
-  // This would connect to product database
-  // For now, return template response
-  
   let budgetText = '';
+  let productSuggestion = '';
+  
   switch (answers.budget) {
-    case 'LOW': budgetText = '5,000-15,000₮'; break;
-    case 'MID': budgetText = '15,000-30,000₮'; break;
-    case 'HIGH': budgetText = '30,000-50,000₮'; break;
-    case 'PREMIUM': budgetText = '50,000₮+'; break;
+    case 'LOW': 
+      budgetText = '5,000-15,000₮'; 
+      productSuggestion = 'Энгийн чанартай, ашигтай сонголт';
+      break;
+    case 'MID': 
+      budgetText = '15,000-30,000₮'; 
+      productSuggestion = 'Дунд зэргийн чанар, хямдралтай';
+      break;
+    case 'HIGH': 
+      budgetText = '30,000-50,000₮'; 
+      productSuggestion = 'Сайн чанар, удаан эдэлгээтэй';
+      break;
+    case 'PREMIUM': 
+      budgetText = '50,000₮+'; 
+      productSuggestion = 'Премиум брэнд, хамгийн сайн чанар';
+      break;
   }
   
+  const whoText = answers.who === 'CHILD' ? 'Хүүхдийн' : 'Том хүний';
+  
   return {
-    text: `✅ Таны хэрэгцээнд тохирсон ${category.name}:
+    text: `Танд зориулж оллоо! 🎉
 
-🎯 Төрөл: ${answers.who === 'CHILD' ? 'Хүүхдийн' : 'Том хүний'}
-💰 Бюджет: ${budgetText}
-${answers.size ? `📏 Размер: ${answers.size}` : ''}
-${answers.type ? `📌 Зориулалт: ${answers.type}` : ''}
+📦 ${category.name}:
+✅ ${whoText}
+✅ ${budgetText}
+${answers.size ? `✅ Размер: ${answers.size}` : ''}
+${answers.type ? `✅ ${answers.type}` : ''}
 
-Идэвхтэй бараа харуулах уу? 👇`,
+${productSuggestion}
+
+👇 Яг одоо үзэх үү? Эсвэл утсаар зөвлөгөө авмаар байна уу?`,
     quick_replies: [
-      { content_type: 'text', title: '📦 Бараа харах', payload: 'SHOW_PRODUCTS' },
-      { content_type: 'text', title: '☎️ Утасдах', payload: 'CALL_US' },
-      { content_type: 'text', title: '🔄 Өөрөө хайх', payload: 'NEW_SEARCH' },
+      { content_type: 'text', title: '📸 Зураг үзэх', payload: 'SHOW_PRODUCTS' },
+      { content_type: 'text', title: '☎️ 80554678', payload: 'CALL_US' },
+      { content_type: 'text', title: '🏪 Дэлгүүр очно', payload: 'VISIT_STORE' },
     ]
   };
 }

@@ -115,28 +115,31 @@ function handlePostback(senderPsid, receivedPostback) {
 }
 
 // Send message via Messenger API
-function callSendAPI(senderPsid, response) {
+async function callSendAPI(senderPsid, response) {
   const requestBody = {
     recipient: { id: senderPsid },
     message: response
   };
   
-  fetch(`https://graph.facebook.com/v18.0/me/messages?access_token=${CONFIG.PAGE_ACCESS_TOKEN}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(requestBody)
-  })
-  .then(res => res.json())
-  .then(json => {
+  try {
+    const res = await fetch(`https://graph.facebook.com/v18.0/me/messages?access_token=${CONFIG.PAGE_ACCESS_TOKEN}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
+    
+    const json = await res.json();
+    
     if (json.error) {
-      console.error('Unable to send message:', json.error);
+      console.error('❌ FB API Error:', json.error);
+      // Log full error for debugging
+      console.error('Full error:', JSON.stringify(json.error, null, 2));
     } else {
-      console.log('Message sent!');
+      console.log('✅ Message sent to', senderPsid);
     }
-  })
-  .catch(error => {
-    console.error('Error sending message:', error);
-  });
+  } catch (error) {
+    console.error('❌ Network Error:', error.message);
+  }
 }
 
 // Health check
