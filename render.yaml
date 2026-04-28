@@ -8,8 +8,9 @@ services:
     startCommand: node webhook-server.js
     envVars:
       - key: FACEBOOK_PAGE_TOKEN
-        value: EAAVjTCjNCTgBRfLoNHqFYbMEtb6rZCTxA3jB9mXZAAgjKeyp9wr6gjm7YiqLX21aNU9f4KsMYyPp4BL1KLRVjw2la4i7EGsdHvAuM38ZBUnKglQYdi7HWNM2rlK7JjBiUmhMMXXoyvU36nDZCZBGPLGUac1UQNZARk9ZC6pNGEvWni9lxgiedrUme5iAkafbAZCjvHM96OaC8i8848jnhRG0FLQ0bgZDZD
+        sync: false
       - key: FACEBOOK_VERIFY_TOKEN
         value: ucombini_verify_2026_secure
       - key: PORT
         value: 10000
+    healthCheckPath: /health
