@@ -47,7 +47,7 @@ app.get('/webhook/facebook', (req, res) => {
   if (mode && token) {
     if (mode === 'subscribe' && token === CONFIG.VERIFY_TOKEN) {
       console.log('WEBHOOK_VERIFIED');
-      res.status(200).send(challenge);
+      res.status(200).set('Content-Type', 'text/plain').send(challenge);
     } else {
       res.sendStatus(403);
     }
